@@ -15,6 +15,9 @@ void main()
 	expression = "2+2^2*3";
 	eval_result = eval.evaluate(expression);
 	cout << "2+2^2*3 = " <<  eval_result << endl;
+	expression = "5>=10 || 2<1";
+	eval_result = eval.evaluate(expression);
+	cout << "5>=10 || 2<1 = " << eval_result << endl;
 	system("pause");
 	//return 0;
 }
