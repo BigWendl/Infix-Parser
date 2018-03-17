@@ -178,10 +178,59 @@ class Infix {
 				{
 					return result = lhs % rhs;
 				}
-				else if (op == "^")
+				else if (op == "^") //changed function due to "loss of data" going from double to int
 				{
-					return result = pow(lhs, rhs);
-				}
+					int origLeft = lhs;
+					while (rhs != 1)
+					{
+						lhs *= origLeft;
+						rhs--;
+					}
+					result = lhs;
+					return result;
+					}
+					else if (op == ">")
+					{
+						if (lhs > rhs)
+							return 1;
+						else
+							return 0;
+					}
+					else if (op == "<")
+					{
+						if (lhs < rhs)
+							return 1;
+						else
+							return 0;
+					}
+					else if (op == ">=")
+					{
+						if (lhs >= rhs)
+							return 1;
+						else
+							return 0;
+					}
+					else if (op == "<=")
+					{
+						if (lhs <= rhs)
+							return 1;
+						else
+							return 0;
+					}
+					else if (op == "&&")
+					{
+						if ((lhs == 1) && (rhs == 1))
+							return 1;
+						else
+							return 0;
+					}
+					else if (op == "||")
+					{
+						if ((lhs == 1) || (rhs == 1))
+							return 1;
+						else
+							return 0;
+					}
 				//more operators need to be added and the logic applied
 				//function needs to be passed 0 for the lhs if the operator only takes one operand
 		}
