@@ -80,6 +80,17 @@ public:
 				{
 					tokens.putback(nextChar);//if the next character is a number, put it back to be added to the operand stack
 				}
+				//checks for open parentheses
+				else if( nextChar == "("){
+					operatorStack.push("(");
+				}
+				//checks for closing parentheses and continues to evaluate until an open parentheses is found
+				else if(nextChar == ")"){
+					while (operandStack.top != "(")
+						operandStack.push(compute(operandstack.pop(),operandstack.pop(), operatorStack.pop()));
+					operatorStack.push(nextChar);			  
+				
+				}	
 				else
 				{
 					op += nextChar;//if it isn't a number add it to the operator string
@@ -157,6 +168,7 @@ public:
 			if (op == "+")
 			{
 				return result = lhs + rhs;
+				
 			}
 			else if (op == "*")
 			{
