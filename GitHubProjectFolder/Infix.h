@@ -1,48 +1,21 @@
 #ifndef INFIX_H_
-
 #define INFIX_H_
 
-
-
 #include <string>
-
 #include <sstream>
-
 #include <stack>
-
 #include <iostream>
-
-
-
-//namespace INF {
 
 using namespace std;
 
-
-
 class Infix {
-
-
-
 private:
 
 	stack<string> operatorStack;//changed to stack of strings so it could handle two character operators
-
 	stack<int> operandStack;
-
-	stack<char> boolStack;//do we need this?
-
 	int result, lhs, rhs, position;
-
-	string operators[17] = { "!", "++", "--", "^", "*", "/", "%", "+", "-", ">", ">=", "<", "<=", "==", "!=", "&&", "||" };//only operator not included is negative (-)
-
-	int precedence[17] = { 8, 8, 8, 7, 6, 6, 6, 5, 5, 4, 4, 4, 4, 3, 3, 2, 1 };
-
-	//const string bools = "|&";
-
-	string expression;
-
-
+	string operators[17] = {"!", "++", "--", "^", "*", "/", "%", "+", "-", ">", ">=", "<", "<=", "==", "!=", "&&", "||" };//only operator not included is negative (-)
+	int precedence[17] = {8, 8, 8, 7, 6, 6, 6, 5, 5, 4, 4, 4, 4, 3, 3, 2, 1 };
 
 	int isoperator(string operators[], int precedence[], string op)
 	{
@@ -61,7 +34,7 @@ public:
 	{
 		istringstream tokens(expression);
 		char nextChar;
-		int current_precedence = 0, previous_precedence = 0;
+		int current_precedence = -1, previous_precedence = -1;
 		string op = "", temp = "";
 		while (tokens >> nextChar)
 		{
@@ -72,74 +45,89 @@ public:
 				tokens >> num;
 				operandStack.push(num);
 			}
+			else if (nextChar == '(' || nextChar == ')')
+			{
+				//checks for open parentheses
+				if (nextChar == '(')//checks for closing parentheses and continues to evaluate until an open parentheses is found
+				{
+					operatorStack.push("(");
+				}
+				else if (nextChar == ')')
+				{
+					while (operatorStack.top() != "(" || operatorStack.empty())
+					{
+						rhs = operandStack.top();
+						operandStack.pop();
+						lhs = operandStack.top();
+						operandStack.pop();
+						op = operatorStack.top();
+						operatorStack.pop();
+
+						operandStack.push(compute(lhs, rhs, op));
+					}
+					operatorStack.pop();
+					op = "";
+					current_precedence = 0;
+					previous_precedence = 0;
+				}
+			}
 			else
 			{
 				op += nextChar;//if the next character is not a number add it to the operator string
-				tokens >> nextChar;//read the next character to see if it should be included in the operator
+				tokens >> nextChar;//read the next character to see if it should be included in the operator			
 				if (isdigit(nextChar))
 				{
 					tokens.putback(nextChar);//if the next character is a number, put it back to be added to the operand stack
+					current_precedence = isoperator(operators, precedence, op);
+
 				}
-				//checks for open parentheses
-				else if( nextChar == "("){
-					operatorStack.push("(");
-				}
-				//checks for closing parentheses and continues to evaluate until an open parentheses is found
-				else if(nextChar == ")"){
-					while (operandStack.top != "(")
-						operandStack.push(compute(operandstack.pop(),operandstack.pop(), operatorStack.pop()));
-					operatorStack.push(nextChar);			  
-				
-				}	
-				else
+				else if (op == ">" || op == "<" || op == "=" || op == "!" || op == "&" || op == "|" || (op == "-" && nextChar == '-') || (op == "+" && nextChar == '+'))
 				{
 					op += nextChar;//if it isn't a number add it to the operator string
+					current_precedence = isoperator(operators, precedence, op);
 				}
-				current_precedence = isoperator(operators, precedence, op);//find the precedence of the operator 
-				if (current_precedence == 0)//if it can't find the precedence it is because the operator is not included in the list of operators
+				else if (nextChar == '(')
 				{
-					cout << "Invalid Character";//output error that the operator is invalid
+					operatorStack.push("(");
+					previous_precedence = 0;
+					current_precedence = 0;
+				}
+				if (current_precedence == -1)//if it can't find the precedence it is because the operator is not included in the list of operators
+				{
+					cout << "Invalid Character" << endl;//output error that the operator is invalid
 					system("pause");
 				}
 				else if (current_precedence < previous_precedence)//if the precedence of the current operator is lower than the operator previous put on the stack
 				{
 					temp = op;//assign the newest operator to a temp variable and process the previous operator and previous two operands
-
 					op = operatorStack.top();
-
 					operatorStack.pop();
-
 					rhs = operandStack.top();
-
 					operandStack.pop();
 
-					lhs = operandStack.top();
+					if (!operandStack.empty())
+					{
+						lhs = operandStack.top();
+						operandStack.pop();
+					}
+					else
+						lhs = 0;
 
-					operandStack.pop();
-
-					operandStack.push(compute(lhs, rhs, op));//push the value of the operation back to the operand stack
-
-					operatorStack.push(temp);//push the newest operator to the stack
-
-					previous_precedence = current_precedence;//set the previous precedence value to that of the operator at the top of the stack
-
-					op = "";//clear the operator string for further processing
-
+						operandStack.push(compute(lhs, rhs, op));//push the value of the operation back to the operand stack
+						operatorStack.push(temp);//push the newest operator to the stack
+						previous_precedence = current_precedence;//set the previous precedence value to that of the operator at the top of the stack
+						op = "";//clear the operator string for further processing
 				}
 				else
 				{
-					previous_precedence = current_precedence;//if the precedence of the new operator is not less then push it to the stack
-					operatorStack.push(op);
-					op = "";//clear the operator string for further processing
+						previous_precedence = current_precedence;//if the precedence of the new operator is not less then push it to the stack
+						operatorStack.push(op);
+						op = "";//clear the operator string for further processing
 				}
-				}
-
 			}
-
+		}
 			while (!operatorStack.empty())//after entire string has been processed the stacks are ready to be processed
-
 			{
-
 				rhs = operandStack.top();
 				operandStack.pop();
 				if (!operandStack.empty())
@@ -162,22 +150,19 @@ public:
 			return result;//once operator stack has been cleared, return the last value in the operand stack
 		}
 
-
-		int compute(int lhs, int rhs, string op)//I made this if\else if instead of switch because c++ does not allow you to switch on string values
+	int compute(int lhs, int rhs, string op)//I made this if\else if instead of switch because c++ does not allow you to switch on string values
 		{
 			if (op == "+")
 			{
 				return result = lhs + rhs;
-				
 			}
 			else if (op == "*")
 			{
 				return result = lhs * rhs;
 			}
 			else if (op == "-")
-			{	
-				rhs = -1 * rhs	
-				return result = lhs + rhs;
+			{
+				return result = lhs - rhs;
 			}
 			else if (op == "/")
 			{
@@ -273,19 +258,30 @@ public:
 			}
 			else if (op == "++")
 			{
+				while (operatorStack.top() == "++")
+				{
+					rhs++;
+					operatorStack.pop();
+					if (operatorStack.empty())
+						return ++rhs;
+				}
 				return ++rhs;
 			}
 			else if (op == "--")
 			{
+				while (operatorStack.top() == "--")
+				{
+					rhs--;
+					operatorStack.pop();
+					if (operatorStack.empty())
+						return --rhs;
+				}
 				return --rhs;
 			}
-			//more operators need to be added and the logic applied
 
-			//function needs to be passed 0 for the lhs if the operator only takes one operand
 			return result;
 		}
 
 	};
-
-
+					
 #endif
