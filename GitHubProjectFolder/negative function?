@@ -1,0 +1,11 @@
+//if (op == "-")//controlling the negative sign
+//{
+//	if ((!operandStack.empty() && (isdigit(operandStack.top()) && isdigit(nextChar))) || ((operandStack.empty() || operatorStack.top() == "(") && isdigit(nextChar)))
+//	{
+//		int num;
+//		tokens >> num;
+//		operandStack.push(num);
+//		operandStack.top() *= -1;
+//		op = "";
+//	}
+//}
