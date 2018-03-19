@@ -176,8 +176,8 @@ public:
 			}
 			else if (op == "-")
 			{	
-					
-				return result = lhs - rhs;
+				rhs = -1 * rhs	
+				return result = lhs + rhs;
 			}
 			else if (op == "/")
 			{
