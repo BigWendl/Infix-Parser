@@ -1,3 +1,4 @@
+
 #include "infix.h"
 #include <iostream>
 #include <string>
@@ -25,6 +26,19 @@ void main()
 	expression = "1+3 > 2";
 	eval_result = eval.evaluate(expression);
 	cout << "1+3 > 2 = " << eval_result << endl;
+	
+	expression = "(4>=4) && 0";
+	eval_result = eval.evaluate(expression);
+	cout << "(4>=4) && 0 = " << eval_result << endl;
+
+	expression = "(1+2)*3";
+	eval_result = eval.evaluate(expression);
+	cout << "(1+2)*3 = " << eval_result << endl;
+
+	expression = "++++2-5*(3^2)";
+	eval_result = eval.evaluate(expression);
+	cout << "++++2-5*(3^2) = " << eval_result << endl;
+
 	
 	system("pause");
 	//return 0;
