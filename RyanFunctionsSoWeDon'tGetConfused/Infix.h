@@ -28,13 +28,14 @@ namespace INF {
 				char letter = *it;
 
 				char nextletter = *it++;
-				
+				// checks if there's a space between numbers
 				if (isdigit(operandStack.top()) && isspace(letter) && isdigit(nextletter)) {
 					throw Syntax_Error("Too many spaces between numbers" + charcount);
 				}
+				//checks for number
 				if (isdigit(letter)) {
 					
-					
+					//checks for entire number before moving on
 					while (isdigit(nextletter)) {
 						
 						letter += nextletter;
@@ -48,6 +49,7 @@ namespace INF {
 					lhsnum = true;
 					
 				}
+				//checks for parentheses
 				else if (letter == '(' || letter == ')') {
 					if (letter == '(') {
 						parencount++;
@@ -59,9 +61,11 @@ namespace INF {
 						charcount--;
 					}
 				}
+				//checks for operator
 				else if (isoperator(letter)) {
 
 					switch(letter) {
+					//checks for &&		
 					case('&'):{
 						if (nextletter == '&') {
 							operatorStack.push('&');
@@ -73,6 +77,7 @@ namespace INF {
 							throw Syntax_Error("Not enough & operators" + charcount);
 						break;
 					}
+					//checks for ||
 					case('|'): {
 						if (nextletter == '|') {
 							operatorStack.push('|');
@@ -84,6 +89,7 @@ namespace INF {
 							throw Syntax_Error("Not enough | operators" + charcount);
 						break;
 					}
+					//checks for !, !=		
 					case('!'): {
 						if (nextletter == '=') {
 							operatorStack.push('N');
@@ -101,6 +107,7 @@ namespace INF {
 						break;
 
 					}
+					//checks for >, >=		
 					case('>'): {
 						if (nextletter == '=') {
 							operatorStack.push('G');
@@ -117,6 +124,7 @@ namespace INF {
 							throw Syntax_Error("Invalid boolean expression" + charcount);
 						break;
 					}
+					//checks for <, <=
 					case('<'): {
 						if (nextletter == '=') {
 							operatorStack.push('L');
@@ -133,6 +141,7 @@ namespace INF {
 							throw Syntax_Error("Invalid boolean expression" + charcount);
 						break;
 						}
+					//checks for ==		
 					case('='): {
 						if (nextletter == '=') {
 							operatorStack.push('E');
@@ -146,7 +155,7 @@ namespace INF {
 						break;
 					}
 
-						
+					//checks for +, ++	
 					case('+'): {
 						if (nextletter == '+') {
 							operatorStack.push('P');
@@ -164,6 +173,7 @@ namespace INF {
 						break;
 
 					}
+					//checks for -,--, or negative expression		
 					case('-'): {
 						if (nextletter == '-') {
 							operatorStack.push('D');
