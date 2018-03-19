@@ -1,23 +1,28 @@
-namespace INF {
+amespace INF {
+	using namespace std;
+
+
+#include <sstream>
+#include <stack>
+#include <cctype>
+#include <exception>
+#include "Syntax_Error.h"
+	
 	class Infix {
 
-#include <string>
-#include <sstream>
-#include <Stack.h>
-#include <cctype>
-#include <exception>		
-		
-		
-		
+	
+
+
+
 	private:
 		stack<char> operatorStack;
 		stack<int> operandStack;
-		
-		
+
+
 		const string operators = "!PDR^*/%+-><GLEN&|";
 		const string precedence = "888876665543321";
 		int rhs, lhs, result;
-		
+
 		int charcount;
 		bool lhsnum = false;
 
@@ -28,52 +33,63 @@ namespace INF {
 			}
 
 		}
-		
-		
+
+		bool isDigit(char c) {
+			if (c > 0 && c <= 9) {
+				return true;
+			}
+			else
+				return false;
+		}
+
+
 	public:
 
 		int buildStacks(string& expression) {
-			string temp = "";
+			char temp = ' ';
 			for (string::iterator it = expression.begin(); it != expression.end(); it++) {
 				char letter = *it;
 				char nextletter = *it++;
 				int current_precedence = -1, previous_precedence = -1;
 				char op = ' ', tempo = ' ';
-				
-				if (isdigit(operandStack.top()) && isspace(letter) && isdigit(nextletter)) {
-					throw Syntax_Error("Too many spaces between numbers at" + charcount );
+
+				if (lhsnum == true && letter == ' ' && isDigit(nextletter)) {
+					throw Syntax_Error("Too many spaces between numbers at" + charcount);
 				}
-				if (isdigit(letter)) {
-					
+				if (isDigit(letter)) {
+
 					int n = 1;
-					while (isdigit(nextletter)) {
-						
+					while (isDigit(nextletter)) {
+
 						letter += nextletter;
-						charcount+=n;
+						charcount += n;
 						lhsnum = true;
 						it++;
 						n++;
 
 					}
-					
+
 					operandStack.push(letter);
-					
-					charcount+= n;
+
+					charcount += n;
 					lhsnum = true;
-					
+
 				}
 				else if (letter == '(') {
 					operatorStack.push('(');
 
 				}
-				else if (isspace(letter){
+				else if (letter == ' ' ){
 					charcount++;
 				}
 				else if (letter == ')') {
 					while (operatorStack.top() != '(' || operatorStack.empty()) {
-						rhs = operandStack.pop();
-						lhs = operandStack.pop();
-						op = operatorStack.pop();
+						rhs = operandStack.top();
+						operandStack.pop();
+						lhs = operandStack.top();
+						operandStack.pop();
+						op = operatorStack.top();
+						operandStack.pop();
 
 						operandStack.push(compute(op, lhs, rhs));
 					}
@@ -82,17 +98,20 @@ namespace INF {
 					current_precedence = 0;
 					previous_precedence = 0;
 				}
-				else if (current_precedence == -1) {
+				else if (current_precedence == -1 ){
 					throw Syntax_Error("Invalid character at" + charcount);
 
 				}
 				else if (current_precedence < previous_precedence) {
 					temp = letter;
-					letter = operatorStack.pop();
-					rhs = operandStack.pop();
+					letter = operatorStack.top();
+					operatorStack.pop();
+					rhs = operandStack.top();
+					operandStack.pop();
 
 					if (!operandStack.empty()) {
-						lhs = operandStack.pop();
+						lhs = operandStack.top();
+						operandStack.pop();
 					}
 					else {
 						lhs = 0;
@@ -103,41 +122,41 @@ namespace INF {
 						op = ' ';
 
 					}
-						
+
 				}
-				else if (!isdigit(letter)) 
+				else if (!isDigit(letter))
 				{
 
-					switch(letter) 
+					switch (letter)
 					{
-						case('&'):
+					case('&'):
+					{
+						if (nextletter == '&')
 						{
-						if (nextletter == '&') 
-							{
 							operatorStack.push('&');
 							charcount += 2;
 							lhsnum = false;
 							it++;
 							current_precedence = Precedence('&');
-							}
+						}
 						else
 							throw Syntax_Error("Not enough & operators" + charcount);
 						break;
-						}
+					}
 					case('|'):
-						{
+					{
 						if (nextletter == '|') {
 							operatorStack.push('|');
 							charcount += 2;
 							lhsnum = false;
 							it++;
 							current_precedence = Precedence('|');
-							}
-							else {
-							throw Syntax_Error("Not enough | operators" + charcount);
-							}
-							break;
 						}
+						else {
+							throw Syntax_Error("Not enough | operators" + charcount);
+						}
+						break;
+					}
 					case('!'): {
 						if (nextletter == '=') {
 							operatorStack.push('N');
@@ -146,7 +165,7 @@ namespace INF {
 							it++;
 							current_precedence = Precedence('N');
 						}
-						else if (isspace(nextletter) || nextletter == '1' || nextletter == '0') {
+						else if (nextletter == ' ' || nextletter == '1' || nextletter == '0') {
 							operatorStack.push('!');
 							charcount++;
 							lhsnum = false;
@@ -165,7 +184,7 @@ namespace INF {
 							it++;
 							current_precedence = Precedence('G');
 						}
-						else if (isspace(nextletter) || isdigit(nextletter)) {
+						else if (nextletter == ' ' || isDigit(nextletter)) {
 							operatorStack.push('>');
 							charcount++;
 							lhsnum = false;
@@ -183,7 +202,7 @@ namespace INF {
 							it++;
 							current_precedence = Precedence('L');
 						}
-						else if (isspace(nextletter) || isdigit(nextletter)) {
+						else if (nextletter == ' ' || isDigit(nextletter)) {
 							operatorStack.push('<');
 							charcount++;
 							lhsnum = false;
@@ -192,7 +211,7 @@ namespace INF {
 						else
 							throw Syntax_Error("Invalid boolean expression" + charcount);
 						break;
-						}
+					}
 					case('='): {
 						if (nextletter == '=') {
 							operatorStack.push('E');
@@ -201,13 +220,13 @@ namespace INF {
 							it++;
 							current_precedence = Precedence('E');
 						}
-						
+
 						else
 							throw Syntax_Error("Invalid boolean expression" + charcount);
 						break;
 					}
 
-						
+
 					case('+'): {
 						if (nextletter == '+') {
 							operatorStack.push('P');
@@ -216,7 +235,7 @@ namespace INF {
 							it++;
 							current_precedence = Precedence('P');
 						}
-						else if (isspace(nextletter) || isdigit(nextletter)) {
+						else if (nextletter == ' ' || isDigit(nextletter)) {
 							operatorStack.push('+');
 							charcount++;
 							lhsnum = false;
@@ -244,7 +263,7 @@ namespace INF {
 
 						}
 
-						else if (isspace(nextletter) || isdigit(nextletter)) {
+						else if (nextletter == ' ' || isDigit(nextletter)) {
 							operatorStack.push('-');
 							charcount++;
 							lhsnum = false;
@@ -254,41 +273,45 @@ namespace INF {
 							throw Syntax_Error("Invalid subtraction or decrement" + charcount);
 						break;
 					}
-					default: 
+					default:
 						throw Syntax_Error("Invalid character" + charcount);
 						break;
 
-					
+
 
 					}
 
-					
-					
+
+
 
 				}
-				
+
 				while (!operatorStack.empty()) {
-					rhs = operandStack.pop();
+					rhs = operandStack.top();
+					operandStack.pop();
 					if (!operandStack.empty()) {
-						lhs = operandStack.pop();
+						lhs = operandStack.top();
+						operandStack.pop();
 					}
 					else
 						lhs = 0;
 
-					op = operatorStack.pop();
+					op = operatorStack.top();
+					operatorStack.pop();
 
 					int answer = compute(lhs, rhs, op);
 					operandStack.push(answer);
 
 				}
 
-				result = operandStack.pop();
+				result = operandStack.top();
+				operandStack.pop();
 				if (!operandStack.empty) {
-					throw Syntax_Error("Stack should be empty")
-					return 0;
+					throw Syntax_Error("Stack should be empty");
+						return 0;
 				}
 				return result;
-				
+
 			}
 		}
 
@@ -297,152 +320,152 @@ namespace INF {
 			int comp;
 			switch (opo)
 			{
-				case('+'): {
-					charcount -=2;
-					return comp = left + right;
-					
-				}
-				case('-'): {
-					charcount -=2;
-					return comp = left - right;
-					
-				}
-				case('*'): {
-					charcount -=2;
-					return comp = left * right;
-					
-				}
-				case('/'): {
-					if (right != 0) {
-					charcount -=2;	
+			case('+'): {
+				charcount -= 2;
+				return comp = left + right;
+
+			}
+			case('-'): {
+				charcount -= 2;
+				return comp = left - right;
+
+			}
+			case('*'): {
+				charcount -= 2;
+				return comp = left * right;
+
+			}
+			case('/'): {
+				if (right != 0) {
+					charcount -= 2;
 					return comp = left / right;
-						
-					}
-					else
-						throw Syntax_Error("Cannot divide by 0" + charcount);
 
 				}
-				case('%'): {
-					return comp = left % right;
-					charcount -=2;
+				else
+					throw Syntax_Error("Cannot divide by 0" + charcount);
+
+			}
+			case('%'): {
+				return comp = left % right;
+				charcount -= 2;
+			}
+			case('^'): {
+				int origLeft = left;
+				while (rhs != 1) {
+					left *= origLeft;
+					right--;
 				}
-				case('^'): {
-					int origLeft = left;
-					while (rhs != 1) {
-						left *= origLeft;
-						right--;
-					}
-					charcount -=2;
-					return comp = left;
-					
-				}
-				case('P'): {
-					operatorStack.push(left);
-					charcount -=2;
-					return comp = rhs + 1;
-				}
-				case('D'): {
-					operatorStack.push(left);
-					charcount -=2;
-					return comp = rhs - 1;
-				}
-				case('R'): {
-					operatorStack.push(left);
+				charcount -= 2;
+				return comp = left;
+
+			}
+			case('P'): {
+				operatorStack.push(left);
+				charcount -= 2;
+				return comp = rhs + 1;
+			}
+			case('D'): {
+				operatorStack.push(left);
+				charcount -= 2;
+				return comp = rhs - 1;
+			}
+			case('R'): {
+				operatorStack.push(left);
+				charcount--;
+				return comp = -1 * rhs;
+			}
+			case('!'): {
+				if (right = 1) {
 					charcount--;
-					return comp = -1 * rhs;
+					return 0;
 				}
-				case('!'): {
-					if (right = 1) {
-						charcount--;
-						return 0;
-					}
-					else{
-						charcount--;
-						return 1;
-					}	
+				else {
+					charcount--;
+					return 1;
 				}
-				case('>'): {
-					if (left > right) {
-						charcount-=2;
-						return 1;
-					}
-					else{
-						charcount-=2;
-						return 0;
-					}
+			}
+			case('>'): {
+				if (left > right) {
+					charcount -= 2;
+					return 1;
 				}
-				case('<'): {
-					if (left < right) {
-						charcount-=2;
-						return 1;
-					}
-					else{
-						charcount-=2;
-						return 0;
-					}
+				else {
+					charcount -= 2;
+					return 0;
 				}
-				case('G'): {
-					if (left >= right) {
-						charcount-=3;
-						return 1;
-					}
-					else{
-						charcount-=3;
-						return 0;
-					}	
+			}
+			case('<'): {
+				if (left < right) {
+					charcount -= 2;
+					return 1;
 				}
-				case('L'): {
-					if (left <= right) {
-						charcount-=3;
-						return 1;
-					}
-					else{
-						charcount-=3;
-						return 0;
-					}	
+				else {
+					charcount -= 2;
+					return 0;
 				}
-				case('E'): {
-					if (left == right) {
-						charcount -=3;
-						return 1;
-					}
-					else{
-						charcount -=3;
-						return 0;
-					}
+			}
+			case('G'): {
+				if (left >= right) {
+					charcount -= 3;
+					return 1;
+				}
+				else {
+					charcount -= 3;
+					return 0;
+				}
+			}
+			case('L'): {
+				if (left <= right) {
+					charcount -= 3;
+					return 1;
+				}
+				else {
+					charcount -= 3;
+					return 0;
+				}
+			}
+			case('E'): {
+				if (left == right) {
+					charcount -= 3;
+					return 1;
+				}
+				else {
+					charcount -= 3;
+					return 0;
+				}
 
+			}
+			case('N'): {
+				if (left != right) {
+					charcount -= 3;
+					return 1;
 				}
-				case('N'): {
-					if (left != right) {
-						charcount -=3;
-						return 1;
-					}
-					else{
-						charcount -=3;
-						return 0;
-					}
+				else {
+					charcount -= 3;
+					return 0;
 				}
-				case('&'): {
-					if (left == 1 && right == 0) {
-						charcount -=3;
-						return 1;
-					}
-					else{
-						charcount -=3;
-						return 0;
-					}
+			}
+			case('&'): {
+				if (left == 1 && right == 0) {
+					charcount -= 3;
+					return 1;
 				}
-				case('|'): {
-					if (left == 1 || right == 1) {
-						charcount -=3;
-						return 1;
-					}
-					else{
-						charcount-=3;
-						return 0;
-					}
+				else {
+					charcount -= 3;
+					return 0;
+				}
+			}
+			case('|'): {
+				if (left == 1 || right == 1) {
+					charcount -= 3;
+					return 1;
+				}
+				else {
+					charcount -= 3;
+					return 0;
+				}
 
-				}
+			}
 
 			}
 
