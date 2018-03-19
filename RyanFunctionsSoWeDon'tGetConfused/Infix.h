@@ -8,18 +8,21 @@ namespace INF {
 #include <exception>		
 		
 		
+		
 	private:
 		stack<char> operatorStack;
 		stack<int> operandStack;
 		
 		
-		const string operators = "+-*/%^";
-		const string booleans = "|&=><!";
+		const string operators = "!PDR^*/%+-><GLEN&|";
+		const string precedence = "888876665543321";
 		int parencount = 0;
 		int digitcount = 0;
 		int charcount;
+		bool lhsnum = false;
 		
-		void buildStacks(string expression) {
+		
+		void buildStacks(string& expression) {
 			string temp = "";
 			for (string::iterator it = expression.begin(); it != expression.end(); it++) {
 				char letter = *it;
@@ -30,39 +33,41 @@ namespace INF {
 					throw Syntax_Error("Too many spaces between numbers" + charcount);
 				}
 				if (isdigit(letter)) {
-					if (isdigit(nextletter)) {
-						int x = 0;
-						temp = letter + nextletter;
-						stringstream tem(temp);
-						tem >> x;
-						operandStack.push(x);
-						digitcount++;
-						charcount++;
+					
+					
+					while (isdigit(nextletter)) {
 						
+						letter += nextletter;
+						charcount++;
+						lhsnum = true;
 
 					}
 					operandStack.push(letter);
-					digitcount++;
+					
 					charcount++;
+					lhsnum = true;
 					
 				}
 				else if (letter == '(' || letter == ')') {
 					if (letter == '(') {
 						parencount++;
 						charcount++;
+						
 					}
 					else {
 						parencount--;
 						charcount--;
 					}
 				}
-				else if (isoperator(letter) || isbool(letter)) {
+				else if (isoperator(letter)) {
 
 					switch(letter) {
 					case('&'):{
 						if (nextletter == '&') {
 							operatorStack.push('&');
 							charcount += 2;
+							lhsnum = false;
+							it++;
 						}
 						else
 							throw Syntax_Error("Not enough & operators" + charcount);
@@ -72,6 +77,8 @@ namespace INF {
 						if (nextletter == '|') {
 							operatorStack.push('|');
 							charcount += 2;
+							lhsnum = false;
+							it++;
 						}
 						else
 							throw Syntax_Error("Not enough | operators" + charcount);
@@ -79,12 +86,15 @@ namespace INF {
 					}
 					case('!'): {
 						if (nextletter == '=') {
-							operatorStack.push('n');
+							operatorStack.push('N');
 							charcount += 2;
+							lhsnum = false;
+							it++;
 						}
 						else if (isspace(nextletter) || nextletter == '1' || nextletter == '0') {
 							operatorStack.push('!');
 							charcount++;
+							lhsnum = false;
 						}
 						else
 							throw Syntax_Error("Invalid boolean expression" + charcount);
@@ -95,10 +105,13 @@ namespace INF {
 						if (nextletter == '=') {
 							operatorStack.push('G');
 							charcount += 2;
+							lhsnum = false;
+							it++;
 						}
 						else if (isspace(nextletter) || isdigit(nextletter)) {
 							operatorStack.push('>');
 							charcount++;
+							lhsnum = false;
 						}
 						else
 							throw Syntax_Error("Invalid boolean expression" + charcount);
@@ -108,10 +121,13 @@ namespace INF {
 						if (nextletter == '=') {
 							operatorStack.push('L');
 							charcount += 2;
+							lhsnum = false;
+							it++;
 						}
 						else if (isspace(nextletter) || isdigit(nextletter)) {
 							operatorStack.push('<');
 							charcount++;
+							lhsnum = false;
 						}
 						else
 							throw Syntax_Error("Invalid boolean expression" + charcount);
@@ -121,11 +137,10 @@ namespace INF {
 						if (nextletter == '=') {
 							operatorStack.push('E');
 							charcount += 2;
+							lhsnum = false;
+							it++;
 						}
-						else if (isspace(nextletter) || isdigit(nextletter)) {
-							operatorStack.push('=');
-							charcount++;
-						}
+						
 						else
 							throw Syntax_Error("Invalid boolean expression" + charcount);
 						break;
@@ -136,10 +151,13 @@ namespace INF {
 						if (nextletter == '+') {
 							operatorStack.push('P');
 							charcount += 2;
+							lhsnum = false;
+							it++;
 						}
 						else if (isspace(nextletter) || isdigit(nextletter)) {
 							operatorStack.push('+');
-								charcount++;
+							charcount++;
+							lhsnum = false;
 						}
 						else
 							throw Syntax_Error("Invalid addition or increment" + charcount);
@@ -150,13 +168,23 @@ namespace INF {
 						if (nextletter == '-') {
 							operatorStack.push('D');
 							charcount += 2;
+							lhsnum = false;
+							it++;
 						}
+
+						else if (lhsnum = false) {
+							operatorStack.push('R');
+							charcount++;
+						
+						}
+						
 						else if (isspace(nextletter) || isdigit(nextletter)) {
 							operatorStack.push('-');
 								charcount++;
+								lhsnum = false;
 						}
 						else
-							throw Syntax_Error("Invalid addition or increment" + charcount);
+							throw Syntax_Error("Invalid subtraction or decrement" + charcount);
 						break;
 					}
 
@@ -175,20 +203,13 @@ namespace INF {
 		{
 			return operators.find(opo) != std::string::npos;
 		}
-		bool isbool(char boolean)
-		{
-			return booleans.find(boolean) != std::string::npos;
-		}
+		
 
 		int evaluateOperator(char opo)
 		{	
 			
 		}
-		int evaluateBool(char boolean)
-		{
-			
-			//pop bool stack
-		}
+		
 
 	public:
 		int count = 0;
