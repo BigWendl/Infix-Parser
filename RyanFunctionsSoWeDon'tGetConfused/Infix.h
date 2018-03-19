@@ -1,4 +1,4 @@
-amespace INF {
+namespace INF {
 	using namespace std;
 
 
