@@ -82,7 +82,7 @@ namespace INF {
 					current_precedence = 0;
 					previous_precedence = 0;
 				}
-				else if (current_precedence == -1 {
+				else if (current_precedence == -1) {
 					throw Syntax_Error("Invalid character at" + charcount);
 
 				}
