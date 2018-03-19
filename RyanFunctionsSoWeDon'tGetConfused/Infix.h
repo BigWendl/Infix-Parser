@@ -66,6 +66,9 @@ namespace INF {
 					operatorStack.push('(');
 
 				}
+				else if (isspace(letter){
+					charcount++;
+				}
 				else if (letter == ')') {
 					while (operatorStack.top() != '(' || operatorStack.empty()) {
 						rhs = operandStack.pop();
@@ -295,17 +298,25 @@ namespace INF {
 			switch (opo)
 			{
 				case('+'): {
+					charcount -=2;
 					return comp = left + right;
+					
 				}
 				case('-'): {
+					charcount -=2;
 					return comp = left - right;
+					
 				}
 				case('*'): {
+					charcount -=2;
 					return comp = left * right;
+					
 				}
 				case('/'): {
 					if (right != 0) {
-						return comp = left / right;
+					charcount -=2;	
+					return comp = left / right;
+						
 					}
 					else
 						throw Syntax_Error("Cannot divide by 0" + charcount);
@@ -313,6 +324,7 @@ namespace INF {
 				}
 				case('%'): {
 					return comp = left % right;
+					charcount -=2;
 				}
 				case('^'): {
 					int origLeft = left;
@@ -320,84 +332,115 @@ namespace INF {
 						left *= origLeft;
 						right--;
 					}
+					charcount -=2;
 					return comp = left;
+					
 				}
 				case('P'): {
 					operatorStack.push(left);
+					charcount -=2;
 					return comp = rhs + 1;
 				}
 				case('D'): {
 					operatorStack.push(left);
+					charcount -=2;
 					return comp = rhs - 1;
 				}
 				case('R'): {
 					operatorStack.push(left);
+					charcount--;
 					return comp = -1 * rhs;
 				}
 				case('!'): {
 					if (right = 1) {
+						charcount--;
 						return 0;
 					}
-					else
+					else{
+						charcount--;
 						return 1;
+					}	
 				}
 				case('>'): {
 					if (left > right) {
+						charcount-=2;
 						return 1;
 					}
-					else
+					else{
+						charcount-=2;
 						return 0;
+					}
 				}
 				case('<'): {
 					if (left < right) {
+						charcount-=2;
 						return 1;
 					}
-					else
+					else{
+						charcount-=2;
 						return 0;
+					}
 				}
 				case('G'): {
 					if (left >= right) {
+						charcount-=3;
 						return 1;
 					}
-					else
+					else{
+						charcount-=3;
 						return 0;
+					}	
 				}
 				case('L'): {
 					if (left <= right) {
+						charcount-=3;
 						return 1;
 					}
-					else
+					else{
+						charcount-=3;
 						return 0;
+					}	
 				}
 				case('E'): {
 					if (left == right) {
+						charcount -=3;
 						return 1;
 					}
-					else
+					else{
+						charcount -=3;
 						return 0;
+					}
 
 				}
 				case('N'): {
 					if (left != right) {
+						charcount -=3;
 						return 1;
 					}
-					else
+					else{
+						charcount -=3;
 						return 0;
+					}
 				}
 				case('&'): {
 					if (left == 1 && right == 0) {
+						charcount -=3;
 						return 1;
 					}
-					else
+					else{
+						charcount -=3;
 						return 0;
-
+					}
 				}
 				case('|'): {
 					if (left == 1 || right == 1) {
+						charcount -=3;
 						return 1;
 					}
-					else
+					else{
+						charcount-=3;
 						return 0;
+					}
 
 				}
 
