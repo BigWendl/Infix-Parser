@@ -15,17 +15,18 @@ namespace INF {
 
 
 	private:
-		stack<char> operatorStack;
-		stack<int> operandStack;
+		//instantiate stacks
+		std::stack<char> operatorStack;
+		std::stack<int> operandStack;
 
-
+		//operator strings
 		const string operators = "!PDR^*/%+-><GLEN&|";
 		const string precedence = "888876665543321";
 		int rhs, lhs, result;
 
 		int charcount;
 		bool lhsnum = false;
-
+		//check precedence of operator
 		int Precedence(char op) {
 			for (int i = 0; i < 18; i++) {
 				if (op == operators[i])
@@ -33,7 +34,7 @@ namespace INF {
 			}
 
 		}
-
+		//check if the character is a numeric digit
 		bool isDigit(char c) {
 			if (c > 0 && c <= 9) {
 				return true;
@@ -44,7 +45,7 @@ namespace INF {
 
 
 	public:
-
+		//builds the stacks to be evaluated
 		int buildStacks(string& expression) {
 			char temp = ' ';
 			for (string::iterator it = expression.begin(); it != expression.end(); it++) {
@@ -56,6 +57,7 @@ namespace INF {
 				if (lhsnum == true && letter == ' ' && isDigit(nextletter)) {
 					throw Syntax_Error("Too many spaces between numbers at" + charcount);
 				}
+				//checks if character is a number
 				if (isDigit(letter)) {
 
 					int n = 1;
@@ -75,13 +77,16 @@ namespace INF {
 					lhsnum = true;
 
 				}
+				//checks for open parentheses
 				else if (letter == '(') {
 					operatorStack.push('(');
 
 				}
+				//checks for spaces
 				else if (letter == ' ' ){
 					charcount++;
 				}
+				//checks for closed parentheses and evaluates until it finds an open paranthesis on the stack
 				else if (letter == ')') {
 					while (operatorStack.top() != '(' || operatorStack.empty()) {
 						rhs = operandStack.top();
@@ -98,10 +103,12 @@ namespace INF {
 					current_precedence = 0;
 					previous_precedence = 0;
 				}
+				
 				else if (current_precedence == -1 ){
 					throw Syntax_Error("Invalid character at" + charcount);
 
 				}
+				//checks the precedence and progresses it to the next highest
 				else if (current_precedence < previous_precedence) {
 					temp = letter;
 					letter = operatorStack.top();
@@ -124,6 +131,7 @@ namespace INF {
 					}
 
 				}
+				//now checks for operators
 				else if (!isDigit(letter))
 				{
 
@@ -314,7 +322,7 @@ namespace INF {
 
 			}
 		}
-
+		//pops operands and operators to compute their values and push them onto the stack
 		int compute(char opo, int left, int right)
 		{
 			int comp;
