@@ -14,6 +14,7 @@ private:
 	stack<string> operatorStack;//changed to stack of strings so it could handle two character operators
 	stack<int> operandStack;
 	int result, lhs, rhs, position;
+	bool lhsnum = false;
 	string operators[17] = {"!", "++", "--", "^", "*", "/", "%", "+", "-", ">", ">=", "<", "<=", "==", "!=", "&&", "||" };//only operator not included is negative (-)
 	int precedence[17] = {8, 8, 8, 7, 6, 6, 6, 5, 5, 4, 4, 4, 4, 3, 3, 2, 1 };
 
@@ -44,6 +45,7 @@ public:
 				int num;
 				tokens >> num;
 				operandStack.push(num);
+				lhsnum = true;
 			}
 			else if (nextChar == '(' || nextChar == ')')
 			{
@@ -85,6 +87,7 @@ public:
 				{
 					op += nextChar;//if it isn't a number add it to the operator string
 					current_precedence = isoperator(operators, precedence, op);
+					lhsnum = false;
 				}
 				else if (nextChar == '(')
 				{
@@ -162,6 +165,10 @@ public:
 			}
 			else if (op == "-")
 			{
+				if (!lhsnum){
+					operandStack.push(lhs)
+					lhs = 0;	
+				}	
 				return result = lhs - rhs;
 			}
 			else if (op == "/")
