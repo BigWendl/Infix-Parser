@@ -13,7 +13,7 @@ private:
 
 	stack<string> operatorStack;//changed to stack of strings so it could handle two character operators
 	stack<int> operandStack;
-	int result, lhs, rhs, position;
+	int result, lhs, rhs, charcount;
 	bool lhsnum = false;
 	string operators[17] = {"!", "++", "--", "^", "*", "/", "%", "+", "-", ">", ">=", "<", "<=", "==", "!=", "&&", "||" };//only operator not included is negative (-)
 	int precedence[17] = {8, 8, 8, 7, 6, 6, 6, 5, 5, 4, 4, 4, 4, 3, 3, 2, 1 };
@@ -46,6 +46,7 @@ public:
 				tokens >> num;
 				operandStack.push(num);
 				lhsnum = true;
+				charcount+= sizeof(num);
 			}
 			else if (nextChar == '(' || nextChar == ')')
 			{
@@ -53,9 +54,11 @@ public:
 				if (nextChar == '(')//checks for closing parentheses and continues to evaluate until an open parentheses is found
 				{
 					operatorStack.push("(");
+					charcount++;
 				}
 				else if (nextChar == ')')
 				{
+					int n = 0;
 					while (operatorStack.top() != "(" || operatorStack.empty())
 					{
 						rhs = operandStack.top();
@@ -66,7 +69,9 @@ public:
 						operatorStack.pop();
 
 						operandStack.push(compute(lhs, rhs, op));
+						n++;
 					}
+					charcount += n;
 					operatorStack.pop();
 					op = "";
 					current_precedence = 0;
@@ -88,16 +93,18 @@ public:
 					op += nextChar;//if it isn't a number add it to the operator string
 					current_precedence = isoperator(operators, precedence, op);
 					lhsnum = false;
+					charcount += sizeof(op)
 				}
 				else if (nextChar == '(')
 				{
 					operatorStack.push("(");
 					previous_precedence = 0;
 					current_precedence = 0;
+					charcount++;
 				}
 				if (current_precedence == -1)//if it can't find the precedence it is because the operator is not included in the list of operators
 				{
-					cout << "Invalid Character" << endl;//output error that the operator is invalid
+					cout << "Invalid Character" + charcount << endl;//output error that the operator is invalid
 					system("pause");
 				}
 				else if (current_precedence < previous_precedence)//if the precedence of the current operator is lower than the operator previous put on the stack
@@ -158,35 +165,44 @@ public:
 			if (op == "+")
 			{
 				return result = lhs + rhs;
+				charcount -= 2;
 			}
 			else if (op == "*")
 			{
 				return result = lhs * rhs;
+				charcount -=2;
 			}
 			else if (op == "-")
 			{
 				if (!lhsnum){
 					operandStack.push(lhs)
-					lhs = 0;	
-				}	
+					lhs = 0;
+					charcount--;
+					return result = lhs - rhs;
+				}
+				else{
+				charcount -=2;	
 				return result = lhs - rhs;
+				}
 			}
 			else if (op == "/")
 			{
 				if (rhs == 0)
 				{
-					cout << "Division by Zero Error";
+					cout << "Division by Zero Error" + charcount;
 					system("pause");
 					EXIT_FAILURE;
 					//return 0;
 				}
 				else
 				{
+					charcount -=2;
 					return result = lhs / rhs;
 				}
 			}
 			else if (op == "%")
 			{
+				charcount -=2;
 				return result = lhs % rhs;
 			}
 			else if (op == "^") //changed function due to "loss of data" going from double to int
@@ -197,92 +213,99 @@ public:
 					lhs *= origLeft;
 					rhs--;
 				}
+				charcount-=2;
 				result = lhs;
 				return result;
 			}
 			else if (op == ">")
-			{
+			{	charcount -=2;
 				if (lhs > rhs)
 					return 1;
 				else
 					return 0;
 			}
 			else if (op == "<")
-			{
+			{	charcount -=2;
 				if (lhs < rhs)
 					return 1;
 				else
 					return 0;
 			}
 			else if (op == ">=")
-			{
+			{	charcount -=3;
 				if (lhs >= rhs)
 					return 1;
 				else
 					return 0;
 			}
 			else if (op == "<=")
-			{
+			{	charcount -=3;
 				if (lhs <= rhs)
 					return 1;
 				else
 					return 0;
 			}
 			else if (op == "==")
-			{
+			{	charcount -=3;
 				if (lhs == rhs)
 					return 1;
 				else 
 					return 0;
 			}
 			else if (op == "!=")
-			{
+			{	charcount -=3;
 				if (lhs != rhs)
 					return 1;
 				else
 					return 0;
 			}
 			else if (op == "&&")
-			{
+			{	charcount -=3;
 				if ((lhs == 1) && (rhs == 1))
 					return 1;
 				else
 					return 0;
 			}
 			else if (op == "||")
-			{
+			{	charcount -=3;
 				if ((lhs == 1) || (rhs == 1))
 					return 1;
 				else
 					return 0;
 			}
 			else if (op == "!")
-			{
+			{	charcount -=2;
 				if (rhs == 1)
 					return 0;
 				else if (rhs == 0)
 					return 1;
 			}
 			else if (op == "++")
-			{
+			{	int n = 1
 				while (operatorStack.top() == "++")
 				{
 					rhs++;
 					operatorStack.pop();
-					if (operatorStack.empty())
+					if (operatorStack.empty()){
+						n++;
 						return ++rhs;
+					}
 				}
+			 	charcount -= 2n;
 				return ++rhs;
 			}
 			else if (op == "--")
-			{
+			{	int n = 1
 				while (operatorStack.top() == "--")
 				{
 					rhs--;
 					operatorStack.pop();
-					if (operatorStack.empty())
+					if (operatorStack.empty()){
+						n++;
 						return --rhs;
+					}
 				}
+			 	charcount -=2n;
 				return --rhs;
 			}
 
