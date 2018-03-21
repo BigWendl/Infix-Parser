@@ -1,45 +1,30 @@
-
-#include "infix.h"
+#include "stdafx.h"
+#include "Infix.h"
 #include <iostream>
 #include <string>
+#include <stack>
 
 using namespace std;
 
-void main()
-{	
+int main()
+{
 	Infix eval;
-	string expression;
-	int eval_result;
 
-	expression = "1+2*3";
-	eval_result = eval.evaluate(expression);
-	cout << "1+2*3 = " << eval_result << endl;
+	eval.evaluate("1+2*3");
 
-	expression = "2+2^2*3";
-	eval_result = eval.evaluate(expression);
-	cout << "2+2^2*3 = " << eval_result << endl;
+	eval.evaluate("2+2^2*3");
 
-	expression = "1==2";
-	eval_result = eval.evaluate(expression);
-	cout << "1==2 = " << eval_result << endl;
+	eval.evaluate("1==2");
 
-	expression = "1+3 > 2";
-	eval_result = eval.evaluate(expression);
-	cout << "1+3 > 2 = " << eval_result << endl;
-	
-	expression = "(4>=4) && 0";
-	eval_result = eval.evaluate(expression);
-	cout << "(4>=4) && 0 = " << eval_result << endl;
+	eval.evaluate("1+3 > 2");
 
-	expression = "(1+2)*3";
-	eval_result = eval.evaluate(expression);
-	cout << "(1+2)*3 = " << eval_result << endl;
+	eval.evaluate("(4>=4) && 0");
 
-	expression = "++++2-5*(3^2)";
-	eval_result = eval.evaluate(expression);
-	cout << "++++2-5*(3^2) = " << eval_result << endl;
+	eval.evaluate("(1+2)*3");
 
-	
+	eval.evaluate("++++2-5*(3^2)");
+
+	cout << endl;
 	system("pause");
-	//return 0;
+	return 0;
 }
